@@ -1,6 +1,6 @@
 import type { Config } from "tailwindcss";
 
-export default {
+const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -10,80 +10,89 @@ export default {
     extend: {
       colors: {
         primary: {
-          50: "#FFF5F2",
-          100: "#FFE8E0",
-          200: "#FFD1C2",
-          300: "#FFB199",
-          400: "#FF8A66",
-          500: "#FF5A3C",
-          600: "#E6451F",
-          700: "#C23515",
-          800: "#9E2B11",
-          900: "#7A2210",
+          50: "rgb(var(--primary-50) / <alpha-value>)",
+          100: "rgb(var(--primary-100) / <alpha-value>)",
+          500: "rgb(var(--primary-500) / <alpha-value>)",
+          600: "rgb(var(--primary-600) / <alpha-value>)",
+          700: "rgb(var(--primary-700) / <alpha-value>)",
         },
         secondary: {
-          50: "#EEF2FF",
-          100: "#E0E7FF",
-          200: "#C7D2FE",
-          300: "#A5B4FC",
-          400: "#818CF8",
-          500: "#4461F2",
-          600: "#3B4FD9",
-          700: "#2E3DB8",
-          800: "#252F94",
-          900: "#1E2570",
+          50: "rgb(var(--secondary-50) / <alpha-value>)",
+          100: "rgb(var(--secondary-100) / <alpha-value>)",
+          500: "rgb(var(--secondary-500) / <alpha-value>)",
+          600: "rgb(var(--secondary-600) / <alpha-value>)",
+          700: "rgb(var(--secondary-700) / <alpha-value>)",
         },
         neutral: {
-          50: "#F8F9FA",
-          100: "#F1F3F5",
-          200: "#E5E7EB",
-          300: "#D1D5DB",
-          400: "#9CA3AF",
-          500: "#6E6E6E",
-          600: "#4B5563",
-          700: "#374151",
-          800: "#1F2937",
-          900: "#1A1A1A",
+          50: "rgb(var(--neutral-50) / <alpha-value>)",
+          100: "rgb(var(--neutral-100) / <alpha-value>)",
+          200: "rgb(var(--neutral-200) / <alpha-value>)",
+          300: "rgb(var(--neutral-300) / <alpha-value>)",
+          400: "rgb(var(--neutral-400) / <alpha-value>)",
+          500: "rgb(var(--neutral-500) / <alpha-value>)",
+          600: "rgb(var(--neutral-600) / <alpha-value>)",
+          700: "rgb(var(--neutral-700) / <alpha-value>)",
+          800: "rgb(var(--neutral-800) / <alpha-value>)",
+          900: "rgb(var(--neutral-900) / <alpha-value>)",
         },
-      },
-      fontFamily: {
-        sans: ["Plus Jakarta Sans", "Inter", "system-ui", "sans-serif"],
+        success: "rgb(var(--success) / <alpha-value>)",
+        warning: "rgb(var(--warning) / <alpha-value>)",
+        error: "rgb(var(--error) / <alpha-value>)",
+        info: "rgb(var(--info) / <alpha-value>)",
+        background: "rgb(var(--background) / <alpha-value>)",
+        foreground: " rgb(var(--foreground) / <alpha-value>)",
+        card: {
+          DEFAULT: "rgb(var(--card) / <alpha-value>)",
+          foreground: "rgb(var(--card-foreground) / <alpha-value>)",
+        },
+        muted: {
+          DEFAULT: "rgb(var(--muted) / <alpha-value>)",
+          foreground: "rgb(var(--muted-foreground) / <alpha-value>)",
+        },
+        border: "rgb(var(--border) / <alpha-value>)",
+        input: "rgb(var(--input) / <alpha-value>)",
+        ring: "rgb(var(--ring) / <alpha-value>)",
       },
       borderRadius: {
-        xl: "1rem",
-        "2xl": "1.25rem",
-        "3xl": "1.5rem",
+        sm: "var(--radius-sm)",
+        DEFAULT: "var(--radius)",
+        md: "var(--radius-md)",
+        lg: "var(--radius-lg)",
+        xl: "var(--radius-xl)",
       },
       boxShadow: {
-        soft: "0px 4px 20px rgba(0, 0, 0, 0.05)",
-        "soft-lg": "0px 8px 30px rgba(0, 0, 0, 0.08)",
-        card: "0px 2px 12px rgba(0, 0, 0, 0.06)",
+        sm: "var(--shadow-sm)",
+        DEFAULT: "var(--shadow)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
+        "2xl": "var(--shadow-2xl)",
       },
-      animation: {
-        "fade-in": "fadeIn 0.5s ease-in-out",
-        "slide-up": "slideUp 0.5s ease-out",
-        "slide-down": "slideDown 0.3s ease-out",
-        "scale-in": "scaleIn 0.3s ease-out",
+      fontFamily: {
+        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
       },
       keyframes: {
-        fadeIn: {
-          "0%": { opacity: "0" },
-          "100%": { opacity: "1" },
+        "fade-in": {
+          from: { opacity: "0", transform: "translateY(10px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
-        slideUp: {
-          "0%": { transform: "translateY(20px)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
+        "slide-up": {
+          from: { opacity: "0", transform: "translateY(20px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
-        slideDown: {
-          "0%": { transform: "translateY(-20px)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" },
+        "scale-in": {
+          from: { opacity: "0", transform: "scale(0.95)" },
+          to: { opacity: "1", transform: "scale(1)" },
         },
-        scaleIn: {
-          "0%": { transform: "scale(0.95)", opacity: "0" },
-          "100%": { transform: "scale(1)", opacity: "1" },
-        },
+      },
+      animation: {
+        "fade-in": "fade-in 0.5s ease-out",
+        "slide-up": "slide-up 0.6s ease-out",
+        "scale-in": "scale-in 0.4s ease-out",
       },
     },
   },
   plugins: [],
-} satisfies Config;
+};
+
+export default config;

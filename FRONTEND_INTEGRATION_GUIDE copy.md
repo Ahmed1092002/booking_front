@@ -851,7 +851,7 @@ try {
 
 ## Support
 
-**Backend API Documentation**: http://localhost:8080/swagger-ui.html
+**Backend API Documentation**: http://localhost:8080/swagger-ui/index.html#/
 
 **Questions?** Contact backend team for API clarifications.
 
