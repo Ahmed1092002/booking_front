@@ -1,148 +1,194 @@
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/actions/auth";
-import { getSellerHotelsAction } from "@/actions/hotels";
-import Link from "next/link";
-import { Plus, Building2, Star, DollarSign } from "lucide-react";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getSellerHotelsAction, deleteHotelAction } from "@/actions/hotels";
+import { Hotel } from "@/types";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Button from "@/components/ui/Button";
-import Badge from "@/components/ui/Badge";
+import { Plus, Edit, Trash2, Eye, Hotel as HotelIcon } from "lucide-react";
+import Link from "next/link";
+import { useToast } from "@/hooks/useToast";
 
-export default async function SellerHotelsPage() {
-  const user = await getCurrentUser();
+export default function SellerHotelsPage() {
+  const router = useRouter();
+  const { showToast } = useToast();
+  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!user) {
-    redirect("/login");
-  }
+  useEffect(() => {
+    loadHotels();
+  }, []);
 
-  if (!user.roles.includes("ROLE_SELLER")) {
-    redirect("/");
-  }
+  const loadHotels = async () => {
+    setLoading(true);
+    const result = await getSellerHotelsAction();
 
-  const result = await getSellerHotelsAction();
+    if (result.success && result.data) {
+      setHotels(result.data);
+    } else {
+      showToast(result.error || "Failed to load hotels", "error");
+    }
+
+    setLoading(false);
+  };
+
+  const handleDelete = async (hotelId: number) => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this hotel? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    const result = await deleteHotelAction(hotelId);
+
+    if (result.success) {
+      showToast("Hotel deleted successfully", "success");
+      loadHotels();
+    } else {
+      showToast(result.error || "Failed to delete hotel", "error");
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-12">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-neutral-900 mb-2">
-              My Hotels
-            </h1>
-            <p className="text-neutral-600">
-              Manage your hotels and properties
-            </p>
-          </div>
-          <Link href="/seller/hotels/new">
-            <Button variant="primary" size="lg" icon={<Plus />}>
-              Add New Hotel
-            </Button>
-          </Link>
+    <div className="container py-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">My Hotels</h1>
+          <p className="text-muted-foreground">Manage your property listings</p>
         </div>
-
-        {/* Content */}
-        {result.success && result.data ? (
-          result.data.length > 0 ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {result.data.map((hotel) => (
-                <div
-                  key={hotel.id}
-                  className="bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-soft-lg transition-all duration-300 group"
-                >
-                  {/* Hotel Image Placeholder */}
-                  <div className="h-48 bg-gradient-to-br from-primary-400 to-primary-600 relative overflow-hidden">
-                    {hotel.images && hotel.images.length > 0 ? (
-                      <img
-                        src={
-                          hotel.images.find((img) => img.isPrimary)?.imageUrl ||
-                          hotel.images[0].imageUrl
-                        }
-                        alt={hotel.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Building2 className="w-16 h-16 text-white/50" />
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Hotel Info */}
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        <h3 className="text-xl font-bold text-neutral-900 mb-1">
-                          {hotel.name}
-                        </h3>
-                        <p className="text-sm text-neutral-500">{hotel.city}</p>
-                      </div>
-                      {hotel.averageRating && (
-                        <div className="flex items-center gap-1 text-yellow-500">
-                          <Star className="w-4 h-4 fill-current" />
-                          <span className="font-semibold">
-                            {hotel.averageRating.toFixed(1)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Amenities */}
-                    <div className="flex flex-wrap gap-2 mb-4">
-                      {hotel.amenities.slice(0, 3).map((amenity, idx) => (
-                        <Badge key={idx} variant="info">
-                          {amenity}
-                        </Badge>
-                      ))}
-                      {hotel.amenities.length > 3 && (
-                        <Badge variant="info">
-                          +{hotel.amenities.length - 3}
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex gap-2">
-                      <Link
-                        href={`/seller/hotels/${hotel.id}`}
-                        className="flex-1"
-                      >
-                        <Button variant="primary" size="sm" className="w-full">
-                          Manage
-                        </Button>
-                      </Link>
-                      <Link href={`/seller/hotels/${hotel.id}/edit`}>
-                        <Button variant="outline" size="sm">
-                          Edit
-                        </Button>
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-2xl p-12 text-center shadow-soft">
-              <div className="w-16 h-16 rounded-full bg-primary-100 flex items-center justify-center mx-auto mb-4">
-                <Building2 className="w-8 h-8 text-primary-600" />
-              </div>
-              <h2 className="text-2xl font-bold text-neutral-900 mb-2">
-                No hotels yet
-              </h2>
-              <p className="text-neutral-600 mb-6">
-                Get started by adding your first hotel
-              </p>
-              <Link href="/seller/hotels/new">
-                <Button variant="primary" size="lg" icon={<Plus />}>
-                  Add Your First Hotel
-                </Button>
-              </Link>
-            </div>
-          )
-        ) : (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-            <p className="text-red-600">{result.error}</p>
-          </div>
-        )}
+        <Link href="/seller/hotels/new">
+          <Button icon={<Plus className="h-5 w-5" />}>Add New Hotel</Button>
+        </Link>
       </div>
+
+      {/* Loading State */}
+      {loading && (
+        <div className="flex justify-center items-center py-20">
+          <LoadingSpinner size="lg" />
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!loading && hotels.length === 0 && (
+        <div className="card-base p-12 text-center">
+          <div className="max-w-md mx-auto">
+            <div className="w-20 h-20 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <HotelIcon className="h-10 w-10 text-neutral-400" />
+            </div>
+            <h3 className="text-xl font-bold mb-2">No hotels yet</h3>
+            <p className="text-muted-foreground mb-6">
+              Start by adding your first property to begin accepting bookings
+            </p>
+            <Link href="/seller/hotels/new">
+              <Button icon={<Plus className="h-5 w-5" />}>
+                Add Your First Hotel
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Hotels List */}
+      {!loading && hotels.length > 0 && (
+        <div className="space-y-4">
+          {hotels.map((hotel) => (
+            <div key={hotel.id} className="card-base p-6">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold mb-2">{hotel.name}</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {hotel.address}, {hotel.city}
+                  </p>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Rooms
+                      </p>
+                      <p className="font-semibold">
+                        {hotel.rooms?.length || 0}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Rating
+                      </p>
+                      <p className="font-semibold">
+                        {hotel.averageRating?.toFixed(1) || "N/A"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Reviews
+                      </p>
+                      <p className="font-semibold">{hotel.reviewCount || 0}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Min Price
+                      </p>
+                      <p className="font-semibold">
+                        ${hotel.minRoomPrice || "N/A"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {hotel.amenities && hotel.amenities.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {hotel.amenities.slice(0, 5).map((amenity, idx) => (
+                        <span
+                          key={idx}
+                          className="px-3 py-1 bg-neutral-100 text-xs font-medium rounded-full"
+                        >
+                          {amenity}
+                        </span>
+                      ))}
+                      {hotel.amenities.length > 5 && (
+                        <span className="px-3 py-1 bg-neutral-100 text-xs font-medium rounded-full">
+                          +{hotel.amenities.length - 5} more
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2 ml-4">
+                  <Link href={`/hotels/${hotel.id}`} target="_blank">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      icon={<Eye className="h-4 w-4" />}
+                    >
+                      View
+                    </Button>
+                  </Link>
+                  <Link href={`/seller/hotels/${hotel.id}/edit`}>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      icon={<Edit className="h-4 w-4" />}
+                    >
+                      Edit
+                    </Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDelete(hotel.id)}
+                    icon={<Trash2 className="h-4 w-4" />}
+                    className="text-error hover:bg-error/10"
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

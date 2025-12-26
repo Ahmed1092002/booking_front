@@ -1,85 +1,132 @@
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/actions/auth";
+"use client";
+
+import { useState, useEffect } from "react";
 import { getAllUsersAction } from "@/actions/admin";
-import { User as UserIcon, Shield, ShoppingBag } from "lucide-react";
+import { User } from "@/types";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Badge from "@/components/ui/Badge";
+import {
+  Users as UsersIcon,
+  Shield,
+  ShoppingBag,
+  User as UserIcon,
+} from "lucide-react";
+import { useToast } from "@/hooks/useToast";
 
-export default async function AdminUsersPage() {
-  const user = await getCurrentUser();
-  if (!user || !user.roles.includes("ROLE_ADMIN")) {
-    redirect("/");
-  }
+export default function UsersPage() {
+  const { showToast } = useToast();
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const result = await getAllUsersAction();
-  const users = result.data || [];
+  useEffect(() => {
+    loadUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const loadUsers = async () => {
+    setLoading(true);
+    const result = await getAllUsersAction();
+
+    if (result.success && result.data) {
+      setUsers(result.data);
+    } else {
+      showToast(result.error || "Failed to load users", "error");
+    }
+
+    setLoading(false);
+  };
+
+  const getRoleBadge = (roles: string[]) => {
+    if (roles.includes("ROLE_ADMIN")) {
+      return (
+        <Badge variant="error">
+          <Shield className="h-3 w-3 mr-1" />
+          Admin
+        </Badge>
+      );
+    }
+    if (roles.includes("ROLE_SELLER")) {
+      return (
+        <Badge variant="secondary">
+          <ShoppingBag className="h-3 w-3 mr-1" />
+          Seller
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="success">
+        <UserIcon className="h-3 w-3 mr-1" />
+        Customer
+      </Badge>
+    );
+  };
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-12">
-      <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold text-neutral-900 mb-8">
-          User Management
-        </h1>
-
-        <div className="bg-white rounded-2xl shadow-soft overflow-hidden">
-          <table className="w-full text-left">
-            <thead className="bg-neutral-50 border-b border-neutral-100">
-              <tr>
-                <th className="p-6 font-semibold text-neutral-600">User</th>
-                <th className="p-6 font-semibold text-neutral-600">Email</th>
-                <th className="p-6 font-semibold text-neutral-600">Roles</th>
-                <th className="p-6 font-semibold text-neutral-600">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-100">
-              {users.map((u) => (
-                <tr
-                  key={u.id}
-                  className="hover:bg-neutral-50 transition-colors"
-                >
-                  <td className="p-6 font-medium text-neutral-900">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold">
-                        {u.fullName.charAt(0)}
-                      </div>
-                      {u.fullName}
-                    </div>
-                  </td>
-                  <td className="p-6 text-neutral-600">{u.email}</td>
-                  <td className="p-6">
-                    <div className="flex gap-2">
-                      {u.roles.map((role) => (
-                        <Badge
-                          key={role}
-                          variant={
-                            role === "ROLE_ADMIN"
-                              ? "error"
-                              : role === "ROLE_SELLER"
-                              ? "warning"
-                              : "info"
-                          }
-                        >
-                          {role.replace("ROLE_", "")}
-                        </Badge>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="p-6">
-                    {/* Add edit/delete actions if API supports it */}
-                    <button className="text-primary-600 hover:text-primary-700 font-medium text-sm">
-                      Edit
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {users.length === 0 && (
-            <div className="p-12 text-center text-neutral-500">
-              No users found.
-            </div>
-          )}
-        </div>
+    <div className="container py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">User Management</h1>
+        <p className="text-muted-foreground">
+          View and manage all system users
+        </p>
       </div>
+
+      {loading && (
+        <div className="flex justify-center items-center py-20">
+          <LoadingSpinner size="lg" />
+        </div>
+      )}
+
+      {!loading && users.length === 0 && (
+        <div className="card-base p-12 text-center">
+          <UsersIcon className="h-12 w-12 mx-auto mb-3 text-neutral-400" />
+          <p className="text-muted-foreground">No users found</p>
+        </div>
+      )}
+
+      {!loading && users.length > 0 && (
+        <div className="card-base overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-neutral-50 border-b border-neutral-200">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    ID
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                    Role
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-neutral-200">
+                {users.map((user) => (
+                  <tr key={user.id} className="hover:bg-neutral-50">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                      #{user.id}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="font-medium text-neutral-900">
+                        {user.fullName}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-500">
+                      {user.email}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {getRoleBadge(user.roles)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -9,7 +9,8 @@ interface BadgeProps {
     | "success"
     | "warning"
     | "error"
-    | "info";
+    | "info"
+    | "secondary";
   size?: "sm" | "md" | "lg";
 }
 
@@ -26,6 +27,7 @@ export default function Badge({
     warning: "bg-yellow-100 text-yellow-700",
     error: "bg-red-100 text-red-700",
     info: "bg-neutral-100 text-neutral-700",
+    secondary: "bg-secondary-100 text-secondary-700",
   };
 
   const sizes = {

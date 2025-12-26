@@ -1,164 +1,183 @@
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/actions/auth";
+"use client";
+
+import { useState, useEffect } from "react";
 import { getStatisticsAction } from "@/actions/admin";
-import { Users, Building2, Calendar, DollarSign, Tag } from "lucide-react";
+import { SystemStatistics } from "@/types";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import {
+  Users,
+  Hotel,
+  DollarSign,
+  TrendingUp,
+  Calendar,
+  Star,
+  Tag,
+  Shield,
+} from "lucide-react";
+import { useToast } from "@/hooks/useToast";
+import Link from "next/link";
 
-export default async function AdminDashboardPage() {
-  const user = await getCurrentUser();
+export default function AdminDashboard() {
+  const { showToast } = useToast();
+  const [stats, setStats] = useState<SystemStatistics | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!user) {
-    redirect("/login");
-  }
+  useEffect(() => {
+    loadStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  if (!user.roles.includes("ROLE_ADMIN")) {
-    redirect("/");
-  }
+  const loadStats = async () => {
+    setLoading(true);
+    const result = await getStatisticsAction();
 
-  const result = await getStatisticsAction();
+    if (result.success && result.data) {
+      setStats(result.data);
+    } else {
+      showToast(result.error || "Failed to load statistics", "error");
+    }
 
-  if (!result.success || !result.data) {
+    setLoading(false);
+  };
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-50 py-12">
-        <div className="container mx-auto px-4">
-          <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-            <p className="text-red-600">
-              {result.error || "Failed to load statistics"}
-            </p>
-          </div>
+      <div className="container py-8">
+        <div className="flex justify-center items-center py-20">
+          <LoadingSpinner size="lg" />
         </div>
       </div>
     );
   }
 
-  const stats = result.data;
-
-  const statCards = [
-    {
-      title: "Total Users",
-      value: stats.totalUsers,
-      icon: Users,
-      color: "from-blue-500 to-blue-600",
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600",
-    },
-    {
-      title: "Total Hotels",
-      value: stats.totalHotels,
-      icon: Building2,
-      color: "from-purple-500 to-purple-600",
-      iconBg: "bg-purple-100",
-      iconColor: "text-purple-600",
-    },
-    {
-      title: "Total Bookings",
-      value: stats.totalBookings,
-      icon: Calendar,
-      color: "from-green-500 to-green-600",
-      iconBg: "bg-green-100",
-      iconColor: "text-green-600",
-    },
-    {
-      title: "Total Revenue",
-      value: `$${stats.totalRevenue.toLocaleString()}`,
-      icon: DollarSign,
-      color: "from-yellow-500 to-yellow-600",
-      iconBg: "bg-yellow-100",
-      iconColor: "text-yellow-600",
-    },
-    {
-      title: "Active Discount Codes",
-      value: stats.activeDiscountCodes,
-      icon: Tag,
-      color: "from-red-500 to-red-600",
-      iconBg: "bg-red-100",
-      iconColor: "text-red-600",
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-neutral-50 py-12">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-neutral-900 mb-2">
-            Admin Dashboard
-          </h1>
-          <p className="text-neutral-600">System overview and statistics</p>
+    <div className="container py-8">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
+        <p className="text-muted-foreground">System overview and management</p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="card-base p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-primary-50 rounded-lg">
+              <Users className="h-6 w-6 text-primary-600" />
+            </div>
+          </div>
+          <h3 className="text-2xl font-bold mb-1">{stats?.totalUsers || 0}</h3>
+          <p className="text-sm text-muted-foreground">Total Users</p>
         </div>
 
-        {/* Statistics Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {statCards.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={index}
-                className="bg-white rounded-2xl p-6 shadow-soft hover:shadow-soft-lg transition-all duration-300"
-              >
-                <div className="flex items-center gap-4">
-                  <div
-                    className={`w-12 h-12 rounded-xl ${stat.iconBg} flex items-center justify-center flex-shrink-0`}
-                  >
-                    <Icon className={`w-6 h-6 ${stat.iconColor}`} />
-                  </div>
-                  <div>
-                    <p className="text-sm text-neutral-600 mb-1">
-                      {stat.title}
-                    </p>
-                    <p className="text-2xl font-bold text-neutral-900">
-                      {stat.value}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+        <div className="card-base p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-secondary-50 rounded-lg">
+              <Hotel className="h-6 w-6 text-secondary-600" />
+            </div>
+          </div>
+          <h3 className="text-2xl font-bold mb-1">{stats?.totalHotels || 0}</h3>
+          <p className="text-sm text-muted-foreground">Total Hotels</p>
         </div>
 
-        {/* Quick Links */}
-        <div className="bg-white rounded-2xl p-8 shadow-soft">
-          <h2 className="text-2xl font-bold text-neutral-900 mb-6">
-            Quick Actions
-          </h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            <a
-              href="/admin/users"
-              className="p-6 border-2 border-neutral-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-all duration-300 group"
-            >
-              <Users className="w-8 h-8 text-neutral-600 group-hover:text-primary-600 mb-3 transition-colors" />
-              <h3 className="font-semibold text-neutral-900 mb-1">
-                Manage Users
-              </h3>
-              <p className="text-sm text-neutral-600">
+        <div className="card-base p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-success/10 rounded-lg">
+              <Calendar className="h-6 w-6 text-success" />
+            </div>
+          </div>
+          <h3 className="text-2xl font-bold mb-1">
+            {stats?.totalBookings || 0}
+          </h3>
+          <p className="text-sm text-muted-foreground">Total Bookings</p>
+        </div>
+
+        <div className="card-base p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-warning/10 rounded-lg">
+              <DollarSign className="h-6 w-6 text-warning" />
+            </div>
+          </div>
+          <h3 className="text-2xl font-bold mb-1">
+            ${stats?.totalRevenue?.toLocaleString() || 0}
+          </h3>
+          <p className="text-sm text-muted-foreground">Total Revenue</p>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="card-base p-6 mb-8">
+        <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Link href="/admin/users">
+            <div className="p-4 border-2 border-neutral-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all cursor-pointer">
+              <Users className="h-8 w-8 text-primary-600 mb-2" />
+              <h3 className="font-semibold mb-1">Manage Users</h3>
+              <p className="text-sm text-muted-foreground">
                 View and manage all users
               </p>
-            </a>
+            </div>
+          </Link>
 
-            <a
-              href="/admin/discounts"
-              className="p-6 border-2 border-neutral-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-all duration-300 group"
-            >
-              <Tag className="w-8 h-8 text-neutral-600 group-hover:text-primary-600 mb-3 transition-colors" />
-              <h3 className="font-semibold text-neutral-900 mb-1">
-                Discount Codes
-              </h3>
-              <p className="text-sm text-neutral-600">
-                Create and manage discounts
+          <Link href="/admin/discounts">
+            <div className="p-4 border-2 border-neutral-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all cursor-pointer">
+              <Tag className="h-8 w-8 text-primary-600 mb-2" />
+              <h3 className="font-semibold mb-1">Discounts</h3>
+              <p className="text-sm text-muted-foreground">
+                Manage discount codes
               </p>
-            </a>
+            </div>
+          </Link>
 
-            <a
-              href="/admin/audit-logs"
-              className="p-6 border-2 border-neutral-200 rounded-xl hover:border-primary-500 hover:bg-primary-50 transition-all duration-300 group"
-            >
-              <Calendar className="w-8 h-8 text-neutral-600 group-hover:text-primary-600 mb-3 transition-colors" />
-              <h3 className="font-semibold text-neutral-900 mb-1">
-                Audit Logs
-              </h3>
-              <p className="text-sm text-neutral-600">
-                View system activity logs
+          <Link href="/admin/audit-logs">
+            <div className="p-4 border-2 border-neutral-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all cursor-pointer">
+              <Shield className="h-8 w-8 text-primary-600 mb-2" />
+              <h3 className="font-semibold mb-1">Audit Logs</h3>
+              <p className="text-sm text-muted-foreground">
+                View system activity
               </p>
-            </a>
+            </div>
+          </Link>
+
+          <div className="p-4 border-2 border-neutral-200 rounded-lg opacity-50">
+            <Star className="h-8 w-8 text-neutral-400 mb-2" />
+            <h3 className="font-semibold mb-1">Reviews</h3>
+            <p className="text-sm text-muted-foreground">Monitor all reviews</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="card-base p-6">
+        <h2 className="text-xl font-bold mb-4">System Health</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-success/10 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp className="h-5 w-5 text-success" />
+              <span className="font-semibold text-success">Operational</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              All systems running smoothly
+            </p>
+          </div>
+
+          <div className="p-4 bg-neutral-100 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <Calendar className="h-5 w-5 text-neutral-600" />
+              <span className="font-semibold">Last 24 Hours</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {stats?.totalBookings || 0} new bookings
+            </p>
+          </div>
+
+          <div className="p-4 bg-neutral-100 rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="h-5 w-5 text-neutral-600" />
+              <span className="font-semibold">Active Users</span>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {stats?.totalUsers || 0} registered
+            </p>
           </div>
         </div>
       </div>

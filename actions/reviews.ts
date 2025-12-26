@@ -16,6 +16,9 @@ export async function getHotelReviewsAction(
   return api.get<Review[]>(`/api/reviews/hotel/${hotelId}`);
 }
 
+// Alias for consistency
+export const getReviewsByHotelIdAction = getHotelReviewsAction;
+
 // ============ PROTECTED ENDPOINTS ============
 
 export async function createReviewAction(

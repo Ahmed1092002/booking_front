@@ -820,12 +820,12 @@ export function useCreateBooking() {
 - [ ] Setup API client with interceptors
 - [ ] Update layout with new Header/Footer
 
-### Phase 2: Public Pages (Week 2)
+### Phase 2: Public Pages (Week 2) 🔄 IN PROGRESS
 
-- [ ] Landing page with all sections
-- [ ] Hotel search with filters
-- [ ] Hotel details with gallery
-- [ ] Login/Register pages
+- [x] Landing page with all sections
+- [x] Hotel search with filters
+- [x] Hotel details with gallery
+- [x] Login/Register pages
 - [ ] Test all public flows
 
 ### Phase 3: Customer Pages (Week 3)

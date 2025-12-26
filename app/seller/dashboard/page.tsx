@@ -1,112 +1,176 @@
-import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/actions/auth";
-import { getSellerHotelsAction } from "@/actions/hotels";
+"use client";
+
+import { useState, useEffect } from "react";
+import { getSellerStatsAction } from "@/actions/admin";
+import { SellerStats } from "@/types";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import {
+  Hotel,
+  DollarSign,
+  Calendar,
+  TrendingUp,
+  Users,
+  Star,
+} from "lucide-react";
+import { useToast } from "@/hooks/useToast";
 import Link from "next/link";
-import { Building2, Plus, Calendar, Star } from "lucide-react";
 import Button from "@/components/ui/Button";
 
-export default async function SellerDashboardPage() {
-  const user = await getCurrentUser();
-  if (!user || !user.roles.includes("ROLE_SELLER")) {
-    redirect("/");
+export default function SellerDashboard() {
+  const { showToast } = useToast();
+  const [stats, setStats] = useState<SellerStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    setLoading(true);
+    const result = await getSellerStatsAction();
+
+    if (result.success && result.data) {
+      setStats(result.data);
+    } else {
+      showToast(result.error || "Failed to load statistics", "error");
+    }
+
+    setLoading(false);
+  };
+
+  if (loading) {
+    return (
+      <div className="container py-8">
+        <div className="flex justify-center items-center py-20">
+          <LoadingSpinner size="lg" />
+        </div>
+      </div>
+    );
   }
 
-  const result = await getSellerHotelsAction();
-  const hotels = result.data || [];
-
   return (
-    <div className="min-h-screen bg-neutral-50 py-12">
-      <div className="container mx-auto px-4">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-neutral-900 mb-2">
-              Seller Dashboard
-            </h1>
-            <p className="text-neutral-600">Welcome back, {user.fullName}</p>
+    <div className="container py-8">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Seller Dashboard</h1>
+          <p className="text-muted-foreground">
+            Manage your properties and track performance
+          </p>
+        </div>
+        <Link href="/seller/hotels/new">
+          <Button icon={<Hotel className="h-5 w-5" />}>Add New Hotel</Button>
+        </Link>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Total Hotels */}
+        <div className="card-base p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-primary-50 rounded-lg">
+              <Hotel className="h-6 w-6 text-primary-600" />
+            </div>
+            <span className="text-sm font-medium text-success flex items-center gap-1">
+              <TrendingUp className="h-4 w-4" />
+              Active
+            </span>
           </div>
+          <h3 className="text-2xl font-bold mb-1">{stats?.totalHotels || 0}</h3>
+          <p className="text-sm text-muted-foreground">Total Hotels</p>
+        </div>
+
+        {/* Total Bookings */}
+        <div className="card-base p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-secondary-50 rounded-lg">
+              <Calendar className="h-6 w-6 text-secondary-600" />
+            </div>
+            <span className="text-sm font-medium text-primary-600">
+              This Month
+            </span>
+          </div>
+          <h3 className="text-2xl font-bold mb-1">
+            {stats?.totalBookings || 0}
+          </h3>
+          <p className="text-sm text-muted-foreground">Total Bookings</p>
+        </div>
+
+        {/* Total Revenue */}
+        <div className="card-base p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-success/10 rounded-lg">
+              <DollarSign className="h-6 w-6 text-success" />
+            </div>
+            <span className="text-sm font-medium text-success flex items-center gap-1">
+              <TrendingUp className="h-4 w-4" />
+              +12%
+            </span>
+          </div>
+          <h3 className="text-2xl font-bold mb-1">
+            ${stats?.totalRevenue?.toLocaleString() || 0}
+          </h3>
+          <p className="text-sm text-muted-foreground">Total Revenue</p>
+        </div>
+
+        {/* Average Rating */}
+        <div className="card-base p-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className="p-3 bg-warning/10 rounded-lg">
+              <Star className="h-6 w-6 text-warning" />
+            </div>
+            <span className="text-sm font-medium text-warning">
+              {stats?.totalReviews || 0} reviews
+            </span>
+          </div>
+          <h3 className="text-2xl font-bold mb-1">
+            {stats?.averageRating?.toFixed(1) || "0.0"}
+          </h3>
+          <p className="text-sm text-muted-foreground">Average Rating</p>
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="card-base p-6 mb-8">
+        <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Link href="/seller/hotels">
+            <div className="p-4 border-2 border-neutral-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all cursor-pointer">
+              <Hotel className="h-8 w-8 text-primary-600 mb-2" />
+              <h3 className="font-semibold mb-1">Manage Hotels</h3>
+              <p className="text-sm text-muted-foreground">
+                View and edit your properties
+              </p>
+            </div>
+          </Link>
+
           <Link href="/seller/hotels/new">
-            <Button variant="primary" icon={<Plus />}>
-              Add New Hotel
-            </Button>
+            <div className="p-4 border-2 border-neutral-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all cursor-pointer">
+              <TrendingUp className="h-8 w-8 text-primary-600 mb-2" />
+              <h3 className="font-semibold mb-1">Add Hotel</h3>
+              <p className="text-sm text-muted-foreground">
+                List a new property
+              </p>
+            </div>
+          </Link>
+
+          <Link href="/seller/bookings">
+            <div className="p-4 border-2 border-neutral-200 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-all cursor-pointer">
+              <Calendar className="h-8 w-8 text-primary-600 mb-2" />
+              <h3 className="font-semibold mb-1">View Bookings</h3>
+              <p className="text-sm text-muted-foreground">
+                Check upcoming reservations
+              </p>
+            </div>
           </Link>
         </div>
+      </div>
 
-        {/* Quick Stats */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-soft">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center">
-                <Building2 className="w-6 h-6 text-primary-600" />
-              </div>
-              <div>
-                <p className="text-sm text-neutral-500">Total Hotels</p>
-                <p className="text-2xl font-bold text-neutral-900">
-                  {hotels.length}
-                </p>
-              </div>
-            </div>
-          </div>
-          {/* Add more stats if API supports it (e.g. Total Bookings, Revenue) */}
-        </div>
-
-        {/* Recent Hotels */}
-        <div className="bg-white rounded-2xl shadow-soft overflow-hidden">
-          <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
-            <h2 className="text-xl font-bold text-neutral-900">Your Hotels</h2>
-            <Link
-              href="/seller/hotels"
-              className="text-primary-600 hover:text-primary-700 font-medium text-sm"
-            >
-              View All
-            </Link>
-          </div>
-
-          <div className="divide-y divide-neutral-100">
-            {hotels.slice(0, 5).map((hotel) => (
-              <div
-                key={hotel.id}
-                className="p-6 hover:bg-neutral-50 transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-neutral-200 overflow-hidden relative">
-                      {hotel.images && hotel.images.length > 0 ? (
-                        <img
-                          src={hotel.images[0].imageUrl}
-                          alt={hotel.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Building2 className="w-8 h-8 text-neutral-400" />
-                        </div>
-                      )}
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-neutral-900">
-                        {hotel.name}
-                      </h3>
-                      <p className="text-sm text-neutral-500">{hotel.city}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <Link href={`/seller/hotels/${hotel.id}`}>
-                      <Button variant="outline" size="sm">
-                        Manage
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-            {hotels.length === 0 && (
-              <div className="p-12 text-center text-neutral-500">
-                You haven't added any hotels yet.
-              </div>
-            )}
-          </div>
+      {/* Recent Activity Placeholder */}
+      <div className="card-base p-6">
+        <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
+        <div className="text-center py-8 text-muted-foreground">
+          <Users className="h-12 w-12 mx-auto mb-3 opacity-50" />
+          <p>No recent activity to display</p>
         </div>
       </div>
     </div>

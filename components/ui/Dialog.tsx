@@ -119,3 +119,20 @@ export {
   DialogTitle,
   DialogDescription,
 };
+
+// Simplified wrapper for common use case
+export default function SimpleDialog({
+  open,
+  onOpenChange,
+  children,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>{children}</DialogContent>
+    </Dialog>
+  );
+}

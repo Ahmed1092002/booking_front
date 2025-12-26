@@ -34,3 +34,6 @@ export async function redeemLoyaltyPointsAction(
     {}
   );
 }
+
+// Alias for consistency
+export const redeemPointsAction = redeemLoyaltyPointsAction;

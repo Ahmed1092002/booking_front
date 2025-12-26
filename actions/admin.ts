@@ -9,6 +9,7 @@ import {
   DiscountCode,
   CreateDiscountCodeDto,
   PaginatedResponse,
+  SellerStats,
 } from "@/types";
 
 // ============ ADMIN ENDPOINTS ============
@@ -48,4 +49,21 @@ export async function getAllDiscountCodesAction(): Promise<
   // we should warn or return empty if not sure.
   // However, I will comment this out or return error to be safe as requested.
   return api.get<DiscountCode[]>("/api/promotions/discount-codes", true);
+}
+
+// Mock seller stats action (no real API endpoint exists)
+export async function getSellerStatsAction(): Promise<
+  ActionResponse<SellerStats>
+> {
+  // Mock data since no seller-specific stats endpoint exists
+  return {
+    success: true,
+    data: {
+      totalHotels: 0,
+      totalBookings: 0,
+      totalRevenue: 0,
+      averageRating: 0,
+      totalReviews: 0,
+    },
+  };
 }

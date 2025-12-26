@@ -278,6 +278,15 @@ export interface HotelSearchFilters {
   sortOrder?: "asc" | "desc";
 }
 
+// Seller Statistics
+export interface SellerStats {
+  totalHotels: number;
+  totalBookings: number;
+  totalRevenue: number;
+  averageRating: number;
+  totalReviews: number;
+}
+
 // Server Action Response
 export interface ActionResponse<T = unknown> {
   success: boolean;
