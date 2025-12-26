@@ -31,16 +31,11 @@ export async function loginAction(
   const authResponse = result.data;
 
   try {
-    // 2. Decode Token
-    const tokenPayload = JSON.parse(
-      Buffer.from(authResponse.accessToken.split(".")[1], "base64").toString()
-    );
-
     const user: User = {
-      id: tokenPayload.sub || tokenPayload.userId,
-      email: tokenPayload.email || data.email,
-      fullName: tokenPayload.fullName || tokenPayload.name || "",
-      roles: tokenPayload.roles || tokenPayload.authorities || [],
+      id: authResponse.user.id,
+      email: authResponse.user.email,
+      fullName: authResponse.user.fullName,
+      roles: authResponse.user.roles,
     };
 
     // 3. Set Cookies

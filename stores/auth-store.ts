@@ -3,22 +3,31 @@ import { User } from "@/types";
 
 interface AuthState {
   user: User | null;
-  isAuthenticated: boolean;
   setUser: (user: User | null) => void;
-  logout: () => void;
-  hasRole: (role: string) => boolean;
+  initializeFromCookies: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+// Helper to get cookie value
+const getCookie = (name: string): string | null => {
+  if (typeof document === "undefined") return null;
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(";").shift() || null;
+  return null;
+};
+
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
-  isAuthenticated: false,
-
-  setUser: (user) => set({ user, isAuthenticated: !!user }),
-
-  logout: () => set({ user: null, isAuthenticated: false }),
-
-  hasRole: (role) => {
-    const { user } = get();
-    return user?.roles.includes(role as any) ?? false;
+  setUser: (user) => set({ user }),
+  initializeFromCookies: () => {
+    const userInfoCookie = getCookie("user-info");
+    if (userInfoCookie) {
+      try {
+        const user = JSON.parse(decodeURIComponent(userInfoCookie));
+        set({ user });
+      } catch (error) {
+        console.error("Failed to parse user cookie:", error);
+      }
+    }
   },
 }));

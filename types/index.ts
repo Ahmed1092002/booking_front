@@ -239,6 +239,12 @@ export interface RegisterDto {
 export interface JwtAuthResponse {
   accessToken: string;
   tokenType: string;
+  user: {
+    id: number;
+    email: string;
+    fullName: string;
+    roles: Role[];
+  };
 }
 
 // Booking DTOs

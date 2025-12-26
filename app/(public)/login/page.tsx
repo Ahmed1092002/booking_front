@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { loginAction } from "@/actions/auth";
+import { useAuthStore } from "@/stores/auth-store";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
+  const { setUser } = useAuthStore();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -48,6 +50,9 @@ export default function LoginPage() {
     });
 
     if (result.success && result.data) {
+      // Update client-side auth state
+      setUser(result.data.user);
+
       // Redirect based on role
       const { user } = result.data;
       if (user.roles.includes("ROLE_ADMIN")) {

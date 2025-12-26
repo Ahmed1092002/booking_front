@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Menu,
   X,
@@ -26,8 +26,13 @@ import {
 
 export default function Header() {
   const pathname = usePathname();
-  const { user, setUser } = useAuthStore();
+  const { user, setUser, initializeFromCookies } = useAuthStore();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Initialize auth state from cookies on mount
+  useEffect(() => {
+    initializeFromCookies();
+  }, [initializeFromCookies]);
 
   const handleLogout = async () => {
     await logoutAction();
