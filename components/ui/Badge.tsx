@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 interface BadgeProps {
   children: ReactNode;
@@ -12,12 +13,14 @@ interface BadgeProps {
     | "info"
     | "secondary";
   size?: "sm" | "md" | "lg";
+  className?: string;
 }
 
 export default function Badge({
   children,
   variant = "info",
   size = "md",
+  className,
 }: BadgeProps) {
   const variants = {
     featured: "bg-gradient-to-r from-primary-500 to-secondary-500 text-white",
@@ -38,7 +41,12 @@ export default function Badge({
 
   return (
     <span
-      className={`inline-flex items-center font-semibold rounded-full ${variants[variant]} ${sizes[size]}`}
+      className={cn(
+        "inline-flex items-center font-semibold rounded-full",
+        variants[variant],
+        sizes[size],
+        className
+      )}
     >
       {children}
     </span>

@@ -1,6 +1,6 @@
 import { Review } from "@/types";
 import StarRating from "./StarRating";
-import {Avatar} from "@/components/ui/Avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/Avatar";
 import Button from "@/components/ui/Button";
 import { Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -51,10 +51,11 @@ export default function ReviewCard({
     >
       <div className="flex items-start gap-4">
         {/* Avatar */}
-        <Avatar
-          fallback={initials}
-          className="h-12 w-12 text-white bg-primary-500"
-        />
+        <Avatar className="h-12 w-12">
+          <AvatarFallback className="text-white bg-primary-500">
+            {initials}
+          </AvatarFallback>
+        </Avatar>
 
         {/* Content */}
         <div className="flex-1">

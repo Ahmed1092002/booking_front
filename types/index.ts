@@ -185,6 +185,8 @@ export interface DiscountValidation {
   discountPercent: number;
   finalAmount: number;
   message: string;
+  type: "PERCENTAGE" | "FIXED_AMOUNT";
+  discountValue: number;
 }
 
 export interface LoyaltyPoints {
@@ -223,6 +225,9 @@ export interface SystemStatistics {
   totalBookings: number;
   totalRevenue: number;
   activeDiscountCodes: number;
+  activeSellers: number;
+  averageRating: number;
+  pendingReviews: number;
 }
 
 export interface AuditLog {

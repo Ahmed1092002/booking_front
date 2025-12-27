@@ -12,7 +12,7 @@ import {
 import { useToast } from "@/hooks/useToast";
 import Button from "@/components/ui/Button";
 import { DiscountCode, CreateDiscountCodeDto } from "@/types";
-import { format, isPast, isWithinInterval, addDays } from "date-fns";
+import { format, isPast, addDays } from "date-fns";
 
 export default function AdminDiscountsPage() {
   const { showToast } = useToast();

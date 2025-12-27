@@ -9,7 +9,6 @@ import {
   deleteImageAction,
 } from "@/actions/images";
 import { useToast } from "@/hooks/useToast";
-import Button from "@/components/ui/Button";
 import { HotelImage } from "@/types";
 
 interface HotelImageGalleryProps {
@@ -26,10 +25,6 @@ export default function HotelImageGallery({
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
 
-  useEffect(() => {
-    loadImages();
-  }, [hotelId]);
-
   const loadImages = async () => {
     setLoading(true);
     const result = await getHotelImagesAction(hotelId);
@@ -42,6 +37,11 @@ export default function HotelImageGallery({
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    loadImages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hotelId]);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -122,14 +122,16 @@ export default function HotelImageGallery({
           {/* Upload Button */}
           <div>
             <label className="block">
-              <Button
-                as="div"
-                disabled={uploading}
-                icon={<Upload className="h-5 w-5" />}
-                className="cursor-pointer"
+              <div
+                className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  uploading
+                    ? "bg-neutral-200 text-neutral-400 cursor-not-allowed"
+                    : "bg-primary-600 text-white hover:bg-primary-700 cursor-pointer"
+                }`}
               >
+                <Upload className="h-5 w-5" />
                 {uploading ? "Uploading..." : "Upload Image"}
-              </Button>
+              </div>
               <input
                 type="file"
                 accept="image/*"
@@ -204,9 +206,12 @@ export default function HotelImageGallery({
 
         {/* Footer */}
         <div className="sticky bottom-0 bg-white border-t border-neutral-200 p-6">
-          <Button variant="secondary" onClick={onClose} className="w-full">
+          <button
+            onClick={onClose}
+            className="w-full px-4 py-2 bg-neutral-200 text-neutral-700 rounded-lg font-medium hover:bg-neutral-300 transition-colors"
+          >
             Close
-          </Button>
+          </button>
         </div>
       </div>
     </div>

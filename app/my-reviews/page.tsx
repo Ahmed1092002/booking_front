@@ -1,20 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createReviewAction, deleteReviewAction } from "@/actions/reviews";
 import { getMyBookingsAction } from "@/actions/bookings";
 import { Booking, Review, CreateReviewDto } from "@/types";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import ReviewCard from "@/components/review/ReviewCard";
 import Dialog from "@/components/ui/Dialog";
 import { Star, MessageSquare } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 
-export default function MyReviewsPage() {
+function MyReviewsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { showToast } = useToast();
@@ -276,5 +275,21 @@ export default function MyReviewsPage() {
         </Dialog>
       )}
     </div>
+  );
+}
+
+export default function MyReviewsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container py-8">
+          <div className="flex justify-center items-center py-20">
+            <LoadingSpinner size="lg" />
+          </div>
+        </div>
+      }
+    >
+      <MyReviewsContent />
+    </Suspense>
   );
 }

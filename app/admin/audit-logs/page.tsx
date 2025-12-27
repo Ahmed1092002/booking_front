@@ -18,6 +18,7 @@ export default function AuditLogsPage() {
     const result = await getAuditLogsAction();
 
     if (result && result.success && result.data) {
+      console.log(result.data);
       setLogs(result.data.content || []);
     } else {
       showToast(

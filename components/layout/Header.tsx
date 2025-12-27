@@ -124,10 +124,7 @@ export default function Header() {
                   <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link
-                        href="/admin/dashboard"
-                        className="flex items-center gap-2"
-                      >
+                      <Link href="/admin" className="flex items-center gap-2">
                         <Shield className="h-4 w-4" />
                         Admin Dashboard
                       </Link>
@@ -250,7 +247,7 @@ export default function Header() {
                   {user.roles?.includes("ROLE_ADMIN") && (
                     <>
                       <Link
-                        href="/admin/dashboard"
+                        href="/admin"
                         onClick={() => setMobileMenuOpen(false)}
                         className="block px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-100"
                       >
