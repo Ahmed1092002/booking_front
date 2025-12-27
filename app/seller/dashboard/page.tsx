@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { getSellerStatsAction } from "@/actions/admin";
+import { useState, useEffect, useCallback } from "react";
+import { getSellerDashboardAction } from "@/actions/seller";
 import { SellerStats } from "@/types";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import {
@@ -21,13 +21,9 @@ export default function SellerDashboard() {
   const [stats, setStats] = useState<SellerStats | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadStats();
-  }, []);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     setLoading(true);
-    const result = await getSellerStatsAction();
+    const result = await getSellerDashboardAction();
 
     if (result.success && result.data) {
       setStats(result.data);
@@ -36,7 +32,11 @@ export default function SellerDashboard() {
     }
 
     setLoading(false);
-  };
+  }, [showToast]);
+
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
 
   if (loading) {
     return (

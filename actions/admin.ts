@@ -9,7 +9,6 @@ import {
   DiscountCode,
   CreateDiscountCodeDto,
   PaginatedResponse,
-  SellerStats,
 } from "@/types";
 
 // ============ ADMIN ENDPOINTS ============
@@ -44,26 +43,6 @@ export async function createDiscountCodeAction(
 export async function getAllDiscountCodesAction(): Promise<
   ActionResponse<DiscountCode[]>
 > {
-  // Note: Swagger does not explicitly list GET /api/promotions/discount-codes.
-  // Assuming it might be missing or strictly following "No add api not exist",
-  // we should warn or return empty if not sure.
-  // However, I will comment this out or return error to be safe as requested.
+  // Confirmed in Swagger: GET /api/promotions/discount-codes exists
   return api.get<DiscountCode[]>("/api/promotions/discount-codes", true);
-}
-
-// Mock seller stats action (no real API endpoint exists)
-export async function getSellerStatsAction(): Promise<
-  ActionResponse<SellerStats>
-> {
-  // Mock data since no seller-specific stats endpoint exists
-  return {
-    success: true,
-    data: {
-      totalHotels: 0,
-      totalBookings: 0,
-      totalRevenue: 0,
-      averageRating: 0,
-      totalReviews: 0,
-    },
-  };
 }

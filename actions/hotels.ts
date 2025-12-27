@@ -9,7 +9,6 @@ import {
   HotelSearchFilters,
   Room,
 } from "@/types";
-import { getCurrentUser } from "./auth";
 
 // ============ PUBLIC ENDPOINTS ============
 
@@ -20,26 +19,8 @@ export async function getHotelsAction(): Promise<ActionResponse<Hotel[]>> {
 export async function getHotelByIdAction(
   id: number
 ): Promise<ActionResponse<Hotel>> {
-  // STRICT SWAGGER COMPLIANCE: GET /api/hotels/{id} does not exist.
-  // Workaround: Fetch all and find (Inefficient but compliant)
-  // Or check if advanced search can help.
-  // For now, falling back to 'GetAll' + Filter to ensure we don't call non-existent API.
-
-  const allHotels = await api.get<Hotel[]>("/api/hotels");
-  if (!allHotels.success || !allHotels.data) {
-    return {
-      success: false,
-      error: allHotels.error || "Failed to fetch hotels",
-    };
-  }
-
-  const hotel = allHotels.data.find((h) => h.id === Number(id)); // ID might be number or string in JSON
-
-  if (!hotel) {
-    return { success: false, error: "Hotel not found" };
-  }
-
-  return { success: true, data: hotel };
+  // NEW: Port 8081 has GET /api/hotels/{id}
+  return api.get<Hotel>(`/api/hotels/${id}`);
 }
 
 export async function searchHotelsByCityAction(
@@ -66,52 +47,25 @@ export async function createHotelAction(
 }
 
 export async function updateHotelAction(
-  _hotelId: number,
-  _data: CreateHotelDto
+  hotelId: number,
+  data: CreateHotelDto
 ): Promise<ActionResponse<Hotel>> {
-  // STRICT SWAGGER COMPLIANCE: PUT /api/hotels/{id} does not exist.
-  return {
-    success: false,
-    error: "Update hotel functionality not supported by API",
-  };
+  // NEW: Port 8081 has PUT /api/hotels/{id}
+  return api.put<Hotel>(`/api/hotels/${hotelId}`, data, true);
 }
 
 export async function deleteHotelAction(
-  _hotelId: number
+  hotelId: number
 ): Promise<ActionResponse> {
-  // STRICT SWAGGER COMPLIANCE: DELETE /api/hotels/{id} does not exist.
-  return {
-    success: false,
-    error: "Delete hotel functionality not supported by API",
-  };
+  // NEW: Port 8081 has DELETE /api/hotels/{id}
+  return api.delete(`/api/hotels/${hotelId}`, true);
 }
 
 export async function getSellerHotelsAction(): Promise<
   ActionResponse<Hotel[]>
 > {
-  // STRICT SWAGGER COMPLIANCE: GET /api/hotels/seller/my-hotels does not exist.
-  // Workaround: Get all hotels and filter by current user ID (Seller).
-
-  const user = await getCurrentUser();
-  if (!user) {
-    return { success: false, error: "Unauthorized" };
-  }
-
-  const allHotels = await api.get<Hotel[]>("/api/hotels");
-  if (!allHotels.success || !allHotels.data) {
-    return {
-      success: false,
-      error: allHotels.error || "Failed to fetch hotels",
-    };
-  }
-
-  // Filter where sellerId matches
-  // Helper to safely check ownership if sellerId is present
-  const myHotels = allHotels.data.filter(
-    (h: any) => h.sellerId === user.id || (h.seller && h.seller.id === user.id)
-  );
-
-  return { success: true, data: myHotels };
+  // NEW: Port 8081 has GET /api/hotels/seller/my-hotels
+  return api.get<Hotel[]>("/api/hotels/seller/my-hotels", true);
 }
 
 export async function addRoomAction(

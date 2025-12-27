@@ -37,3 +37,19 @@ export async function addSeasonalPricingAction(
     data
   );
 }
+
+export async function deleteBlockedDateAction(
+  roomId: number,
+  blockedDateId: number
+): Promise<ActionResponse> {
+  return api.delete(`/api/calendar/rooms/${roomId}/block/${blockedDateId}`);
+}
+
+export async function deleteSeasonalPricingAction(
+  roomId: number,
+  pricingId: number
+): Promise<ActionResponse> {
+  return api.delete(
+    `/api/calendar/rooms/${roomId}/seasonal-pricing/${pricingId}`
+  );
+}

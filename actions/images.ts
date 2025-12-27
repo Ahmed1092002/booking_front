@@ -57,3 +57,17 @@ export async function deleteImageAction(
 ): Promise<ActionResponse> {
   return api.delete(`/api/images/hotels/${hotelId}/${imageId}`);
 }
+
+export async function setPrimaryRoomImageAction(
+  roomId: number,
+  imageId: number
+): Promise<ActionResponse> {
+  return api.put(`/api/images/rooms/${roomId}/${imageId}/primary`, {});
+}
+
+export async function deleteRoomImageAction(
+  roomId: number,
+  imageId: number
+): Promise<ActionResponse> {
+  return api.delete(`/api/images/rooms/${roomId}/${imageId}`);
+}
