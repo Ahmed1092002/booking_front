@@ -65,6 +65,7 @@ export default function AdminDiscountsPage() {
       setShowModal(false);
       loadCodes();
     } else {
+
       showToast(result.error || "Failed to create code", "error");
     }
   };
@@ -327,7 +328,7 @@ function CodeModal({
     code: code?.code || "",
     description: code?.description || "",
     type: code?.type || "PERCENTAGE",
-    discountValue: code?.discountValue || 10,
+    value: code?.discountValue || 10,
     validFrom: code?.validFrom || format(new Date(), "yyyy-MM-dd"),
     validUntil:
       code?.validUntil || format(addDays(new Date(), 30), "yyyy-MM-dd"),
@@ -400,11 +401,11 @@ function CodeModal({
               </label>
               <input
                 type="number"
-                value={formData.discountValue || ""}
+                value={formData.value || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
-                    discountValue: Number(e.target.value),
+                    value: Number(e.target.value),
                   })
                 }
                 min="0"

@@ -123,13 +123,13 @@ export default function AdminDashboardPage() {
       link: "/admin/discounts",
       color: "bg-pink-50 text-pink-600 hover:bg-pink-100",
     },
-    {
-      title: "Audit Logs",
-      description: "View system activity logs",
-      icon: Activity,
-      link: "/admin/audit-logs",
-      color: "bg-purple-50 text-purple-600 hover:bg-purple-100",
-    },
+    // {
+    //   title: "Audit Logs",
+    //   description: "View system activity logs",
+    //   icon: Activity,
+    //   link: "/admin/audit-logs",
+    //   color: "bg-purple-50 text-purple-600 hover:bg-purple-100",
+    // },
   ];
 
   return (
@@ -139,7 +139,7 @@ export default function AdminDashboardPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
           <p className="text-muted-foreground">
-            Overview of your platform's performance and statistics
+            Overview of your platform&apos;s performance and statistics
           </p>
         </div>
 
@@ -169,7 +169,7 @@ export default function AdminDashboardPage() {
         {/* Quick Actions */}
         <div className="mb-8">
           <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {quickActions.map((action, index) => (
               <Link
                 key={index}

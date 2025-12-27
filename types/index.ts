@@ -200,7 +200,7 @@ export interface CreateDiscountCodeDto {
   code: string;
   description: string;
   type: "PERCENTAGE" | "FIXED_AMOUNT";
-  discountValue: number;
+  value: number;
   validFrom: string;
   validUntil: string;
   maxUses: number;
@@ -211,7 +211,7 @@ export interface UpdateDiscountCodeDto {
   code: string;
   description: string;
   type: "PERCENTAGE" | "FIXED_AMOUNT";
-  discountValue: number;
+  value: number;
   validFrom: string;
   validUntil: string;
   maxUses: number;

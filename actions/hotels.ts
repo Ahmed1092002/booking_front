@@ -26,16 +26,22 @@ export async function getHotelByIdAction(
 export async function searchHotelsByCityAction(
   city: string
 ): Promise<ActionResponse<Hotel[]>> {
-  return api.get<Hotel[]>(
+  const result = await api.get<Hotel[]>(
     `/api/hotels/search?city=${encodeURIComponent(city)}`
   );
+  return result;
 }
 
 export async function advancedHotelSearchAction(
   filters: HotelSearchFilters
 ): Promise<ActionResponse<Hotel[]>> {
   // The response is HotelSearchResponse[], which effectively maps to Hotel[] for our UI
-  return api.post<Hotel[]>("/api/hotels/search/advanced", filters, false);
+  const result = await api.post<Hotel[]>(
+    "/api/hotels/search/advanced",
+    filters,
+    false
+  );
+  return result;
 }
 
 // ============ PROTECTED ENDPOINTS (Seller) ============

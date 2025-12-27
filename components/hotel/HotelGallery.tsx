@@ -128,53 +128,7 @@ export default function HotelGallery({
         )}
       </div>
 
-      {/* Lightbox Dialog */}
-      <Dialog open={lightboxOpen} onOpenChange={setLightboxOpen}>
-        <div className="relative w-full max-w-6xl max-h-[90vh]">
-          {/* Close Button */}
-          <button
-            onClick={() => setLightboxOpen(false)}
-            className="absolute -top-12 right-0 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg transition-colors z-10"
-            aria-label="Close"
-          >
-            <X className="h-6 w-6" />
-          </button>
 
-          {/* Image */}
-          <div className="relative w-full h-[80vh] bg-black rounded-lg overflow-hidden">
-            <img
-              src={sortedImages[currentIndex].imageUrl}
-              alt={`${hotelName} - Image ${currentIndex + 1}`}
-              className="w-full h-full object-contain"
-            />
-
-            {/* Navigation */}
-            {sortedImages.length > 1 && (
-              <>
-                <button
-                  onClick={handlePrev}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-colors"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="h-6 w-6" />
-                </button>
-                <button
-                  onClick={handleNext}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-colors"
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="h-6 w-6" />
-                </button>
-              </>
-            )}
-
-            {/* Counter */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full">
-              {currentIndex + 1} / {sortedImages.length}
-            </div>
-          </div>
-        </div>
-      </Dialog>
     </>
   );
 }

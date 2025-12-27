@@ -1,24 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { getSellerHotelsAction, deleteHotelAction } from "@/actions/hotels";
 import { Hotel } from "@/types";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Button from "@/components/ui/Button";
-import { Plus, Edit, Trash2, Eye, Hotel as HotelIcon } from "lucide-react";
+import { Plus, Edit, Trash2, Hotel as HotelIcon } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/useToast";
 
 export default function SellerHotelsPage() {
-  const router = useRouter();
   const { showToast } = useToast();
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadHotels();
-  }, []);
 
   const loadHotels = async () => {
     setLoading(true);
@@ -32,6 +26,11 @@ export default function SellerHotelsPage() {
 
     setLoading(false);
   };
+
+  useEffect(() => {
+    loadHotels();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleDelete = async (hotelId: number) => {
     if (
@@ -156,16 +155,7 @@ export default function SellerHotelsPage() {
                 </div>
 
                 <div className="flex flex-col gap-2 ml-4">
-                  <Link href={`/hotels/${hotel.id}`} target="_blank">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      icon={<Eye className="h-4 w-4" />}
-                    >
-                      View
-                    </Button>
-                  </Link>
-                  <Link href={`/seller/hotels/${hotel.id}/edit`}>
+                  <Link href={`/seller/hotels/${hotel.id}`}>
                     <Button
                       variant="primary"
                       size="sm"
