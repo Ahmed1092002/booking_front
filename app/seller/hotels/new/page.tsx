@@ -8,6 +8,17 @@ import Input from "@/components/ui/Input";
 import { CreateHotelDto } from "@/types";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const LocationPicker = dynamic(
+  () => import("@/components/hotel/LocationPicker"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-96 w-full bg-neutral-100 rounded-lg animate-pulse" />
+    ),
+  }
+);
 
 const availableAmenities = [
   "Free Wi-Fi",
@@ -29,6 +40,11 @@ export default function NewHotelPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [googleMapUrl, setGoogleMapUrl] = useState("");
+  const [coordinates, setCoordinates] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const handleAmenityToggle = (amenity: string) => {
     setSelectedAmenities((prev) =>
@@ -36,6 +52,13 @@ export default function NewHotelPage() {
         ? prev.filter((a) => a !== amenity)
         : [...prev, amenity]
     );
+  };
+
+  const handleLocationSelect = (lat: number, lng: number) => {
+    setCoordinates({ lat, lng });
+    // Auto-generate Google Maps URL
+    const url = `https://www.google.com/maps?q=${lat},${lng}`;
+    setGoogleMapUrl(url);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -48,7 +71,7 @@ export default function NewHotelPage() {
       name: formData.get("name") as string,
       city: formData.get("city") as string,
       address: formData.get("address") as string,
-      googleMapUrl: formData.get("googleMapUrl") as string,
+      googleMapUrl: googleMapUrl || (formData.get("googleMapUrl") as string),
       amenities: selectedAmenities,
     };
 
@@ -103,11 +126,27 @@ export default function NewHotelPage() {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-3">
+              Location
+            </label>
+            <LocationPicker onLocationSelect={handleLocationSelect} />
+            {coordinates && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Selected: {coordinates.lat.toFixed(6)},{" "}
+                {coordinates.lng.toFixed(6)}
+              </p>
+            )}
+          </div>
+
           <Input
             label="Google Maps URL"
             name="googleMapUrl"
+            value={googleMapUrl}
+            onChange={(e) => setGoogleMapUrl(e.target.value)}
             placeholder="Embed URL from Google Maps"
             required
+            className="bg-neutral-50"
           />
 
           <div>

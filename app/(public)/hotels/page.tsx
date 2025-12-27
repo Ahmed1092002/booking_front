@@ -2,7 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { Hotel, HotelSearchFilters } from "@/types";
-import { advancedHotelSearchAction } from "@/actions/hotels";
+import {
+  advancedHotelSearchAction,
+  getHotelsAction,
+  searchHotelsByCityAction,
+} from "@/actions/hotels";
 import HotelCard from "@/components/hotel/HotelCard";
 import HotelFilters from "@/components/hotel/HotelFilters";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -123,6 +127,22 @@ export default function HotelsPage() {
                   </>
                 )}
               </h2>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    setLoading(true);
+                    const result = await getHotelsAction();
+                    if (result.success && result.data) {
+                      setHotels(result.data);
+                    }
+                    setLoading(false);
+                  }}
+                >
+                  Show All
+                </Button>
+              </div>
             </div>
 
             {/* Loading State */}

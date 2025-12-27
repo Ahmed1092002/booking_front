@@ -169,10 +169,15 @@ export interface SeasonalPricingDto {
 export interface DiscountCode {
   id: number;
   code: string;
-  discountPercent: number;
-  expiryDate: string;
-  isActive: boolean;
-  usageCount: number;
+  description: string | null;
+  type: "PERCENTAGE" | "FIXED_AMOUNT";
+  discountValue: number;
+  validFrom: string;
+  validUntil: string;
+  maxUses: number;
+  currentUses: number;
+  minBookingAmount: number;
+  active: boolean;
 }
 
 export interface DiscountValidation {
@@ -191,8 +196,24 @@ export interface LoyaltyPoints {
 
 export interface CreateDiscountCodeDto {
   code: string;
-  discountPercent: number;
-  expiryDate: string;
+  description: string;
+  type: "PERCENTAGE" | "FIXED_AMOUNT";
+  discountValue: number;
+  validFrom: string;
+  validUntil: string;
+  maxUses: number;
+  minBookingAmount: number;
+}
+
+export interface UpdateDiscountCodeDto {
+  code: string;
+  description: string;
+  type: "PERCENTAGE" | "FIXED_AMOUNT";
+  discountValue: number;
+  validFrom: string;
+  validUntil: string;
+  maxUses: number;
+  minBookingAmount: number;
 }
 
 // Admin types

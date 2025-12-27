@@ -8,6 +8,17 @@ import Input from "@/components/ui/Input";
 import { CreateHotelDto, Hotel } from "@/types";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const LocationPicker = dynamic(
+  () => import("@/components/hotel/LocationPicker"),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-96 w-full bg-neutral-100 rounded-lg animate-pulse" />
+    ),
+  }
+);
 
 const availableAmenities = [
   "Free Wi-Fi",
@@ -34,12 +45,35 @@ export default function EditHotelPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [initialData, setInitialData] = useState<Hotel | null>(null);
+  const [googleMapUrl, setGoogleMapUrl] = useState("");
+  const [coordinates, setCoordinates] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
 
   const loadHotel = async () => {
     const result = await getHotelByIdAction(id);
     if (result.success && result.data) {
       setInitialData(result.data);
       setSelectedAmenities(result.data.amenities || []);
+      setGoogleMapUrl(result.data.googleMapUrl || "");
+
+      // Try to extract coordinates from existing URL
+      if (result.data.googleMapUrl && result.data.googleMapUrl.includes("q=")) {
+        try {
+          // Format usually ...?q=lat,lng
+          const urlParams = new URL(result.data.googleMapUrl).searchParams;
+          const q = urlParams.get("q");
+          if (q) {
+            const [lat, lng] = q.split(",").map(Number);
+            if (!isNaN(lat) && !isNaN(lng)) {
+              setCoordinates({ lat, lng });
+            }
+          }
+        } catch (e) {
+          console.error("Failed to parse map URL", e);
+        }
+      }
     } else {
       setError("Failed to load hotel data");
     }
@@ -48,6 +82,7 @@ export default function EditHotelPage() {
 
   useEffect(() => {
     loadHotel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleAmenityToggle = (amenity: string) => {
@@ -56,6 +91,12 @@ export default function EditHotelPage() {
         ? prev.filter((a) => a !== amenity)
         : [...prev, amenity]
     );
+  };
+
+  const handleLocationSelect = (lat: number, lng: number) => {
+    setCoordinates({ lat, lng });
+    const url = `https://www.google.com/maps?q=${lat},${lng}`;
+    setGoogleMapUrl(url);
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -68,7 +109,7 @@ export default function EditHotelPage() {
       name: formData.get("name") as string,
       city: formData.get("city") as string,
       address: formData.get("address") as string,
-      googleMapUrl: formData.get("googleMapUrl") as string,
+      googleMapUrl: googleMapUrl || (formData.get("googleMapUrl") as string),
       amenities: selectedAmenities,
     };
 
@@ -137,11 +178,31 @@ export default function EditHotelPage() {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-3">
+              Location
+            </label>
+            <LocationPicker
+              onLocationSelect={handleLocationSelect}
+              initialLat={coordinates?.lat}
+              initialLng={coordinates?.lng}
+            />
+            {coordinates && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Selected: {coordinates.lat.toFixed(6)},{" "}
+                {coordinates.lng.toFixed(6)}
+              </p>
+            )}
+          </div>
+
           <Input
             label="Google Maps URL"
             name="googleMapUrl"
-            defaultValue={initialData.googleMapUrl}
+            value={googleMapUrl}
+            onChange={(e) => setGoogleMapUrl(e.target.value)}
+            placeholder="Embed URL from Google Maps"
             required
+            className="bg-neutral-50"
           />
 
           <div>

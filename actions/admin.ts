@@ -8,6 +8,7 @@ import {
   AuditLog,
   DiscountCode,
   CreateDiscountCodeDto,
+  UpdateDiscountCodeDto,
   PaginatedResponse,
 } from "@/types";
 
@@ -33,16 +34,57 @@ export async function getAuditLogsAction(
   );
 }
 
+// ============ DISCOUNT CODE ENDPOINTS ============
+
 export async function createDiscountCodeAction(
   data: CreateDiscountCodeDto
 ): Promise<ActionResponse<DiscountCode>> {
-  // Fixed: Endpoint is /api/promotions/discount-codes, not /api/admin/...
   return api.post<DiscountCode>("/api/promotions/discount-codes", data, true);
 }
 
 export async function getAllDiscountCodesAction(): Promise<
   ActionResponse<DiscountCode[]>
 > {
-  // Confirmed in Swagger: GET /api/promotions/discount-codes exists
   return api.get<DiscountCode[]>("/api/promotions/discount-codes", true);
+}
+
+export async function getDiscountCodeByIdAction(
+  id: number
+): Promise<ActionResponse<DiscountCode>> {
+  return api.get<DiscountCode>(`/api/promotions/discount-codes/${id}`, true);
+}
+
+export async function updateDiscountCodeAction(
+  id: number,
+  data: UpdateDiscountCodeDto
+): Promise<ActionResponse<DiscountCode>> {
+  return api.put<DiscountCode>(
+    `/api/promotions/discount-codes/${id}`,
+    data,
+    true
+  );
+}
+
+export async function deleteDiscountCodeAction(
+  id: number
+): Promise<ActionResponse<void>> {
+  return api.delete(`/api/promotions/discount-codes/${id}`, true);
+}
+
+export async function toggleDiscountCodeStatusAction(
+  id: number
+): Promise<ActionResponse<DiscountCode>> {
+  return api.patch<DiscountCode>(
+    `/api/promotions/discount-codes/${id}/status`,
+    {},
+    true
+  );
+}
+
+// ============ USER AUDIT LOGS ============
+
+export async function getUserAuditLogsAction(
+  userId: number
+): Promise<ActionResponse<AuditLog[]>> {
+  return api.get<AuditLog[]>(`/api/admin/audit-logs/user/${userId}`, true);
 }

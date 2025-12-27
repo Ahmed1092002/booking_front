@@ -1,17 +1,11 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/actions/auth";
-import { getHotelByIdAction } from "@/actions/hotels";
+import { getHotelByIdAction, getHotelRoomsAction } from "@/actions/hotels";
 import Link from "next/link";
-import {
-  ArrowLeft,
-  MapPin,
-  Star,
-  Image as ImageIcon,
-  Plus,
-  Edit,
-} from "lucide-react";
+import { ArrowLeft, MapPin, Star, Edit } from "lucide-react";
 import Button from "@/components/ui/Button";
-import Badge from "@/components/ui/Badge";
+import AddRoomButton from "@/components/hotel/AddRoomButton";
+import HotelImageGalleryButton from "@/components/hotel/HotelImageGalleryButton";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -25,9 +19,12 @@ export default async function HotelManagementPage({ params }: PageProps) {
     redirect("/");
   }
 
-  const result = await getHotelByIdAction(Number(id));
+  const [hotelResult, roomsResult] = await Promise.all([
+    getHotelByIdAction(Number(id)),
+    getHotelRoomsAction(Number(id)),
+  ]);
 
-  if (!result.success || !result.data) {
+  if (!hotelResult.success || !hotelResult.data) {
     return (
       <div className="min-h-screen bg-neutral-50 flex items-center justify-center">
         <div className="text-center">
@@ -42,11 +39,13 @@ export default async function HotelManagementPage({ params }: PageProps) {
     );
   }
 
-  const hotel = result.data;
+  const hotel = hotelResult.data;
+  const rooms =
+    roomsResult.success && roomsResult.data
+      ? roomsResult.data
+      : hotel.rooms || [];
 
-  // Verify ownership (optional but recommended if API doesn't strictly enforce it on GET)
-  // Assuming API handles permission check or we check matching seller ID if available in User type vs Hotel seller
-  // For now, relying on API.
+  hotel.rooms = rooms;
 
   return (
     <div className="min-h-screen bg-neutral-50 py-12">
@@ -107,10 +106,7 @@ export default async function HotelManagementPage({ params }: PageProps) {
         <div className="bg-white rounded-2xl shadow-soft overflow-hidden mb-8">
           <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
             <h2 className="text-xl font-bold text-neutral-900">Rooms</h2>
-            {/* Link to Add Room page - To be implemented */}
-            <Button variant="primary" size="sm" icon={<Plus />}>
-              Add Room
-            </Button>
+            <AddRoomButton hotelId={hotel.id} />
           </div>
 
           <div className="overflow-x-auto">
@@ -169,9 +165,7 @@ export default async function HotelManagementPage({ params }: PageProps) {
         <div className="bg-white rounded-2xl shadow-soft overflow-hidden">
           <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
             <h2 className="text-xl font-bold text-neutral-900">Gallery</h2>
-            <Button variant="outline" size="sm" icon={<ImageIcon />}>
-              Manage Images
-            </Button>
+            <HotelImageGalleryButton hotelId={hotel.id} />
           </div>
           <div className="p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {hotel.images && hotel.images.length > 0 ? (
@@ -180,6 +174,7 @@ export default async function HotelManagementPage({ params }: PageProps) {
                   key={image.id}
                   className="aspect-square rounded-lg overflow-hidden relative group"
                 >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={image.imageUrl}
                     alt="Hotel"

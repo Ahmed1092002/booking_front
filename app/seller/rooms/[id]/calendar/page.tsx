@@ -1,14 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Plus } from "lucide-react";
-import Link from "next/link";
-import {
-  getMonthlyCalendarAction,
-  blockDatesAction,
-  addSeasonalPricingAction,
-} from "@/actions/calendar";
+import { getMonthlyCalendarAction } from "@/actions/calendar";
+import { useToast } from "@/hooks/useToast";
 import { CalendarDay } from "@/types";
 import Button from "@/components/ui/Button";
 import {
@@ -16,21 +12,24 @@ import {
   startOfMonth,
   endOfMonth,
   eachDayOfInterval,
-  isSameDay,
   addMonths,
   subMonths,
 } from "date-fns";
 
-export default function RoomCalendarPage() {
-  const params = useParams();
+export default function RoomCalendarPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const router = useRouter();
+  const { showToast } = useToast();
   const roomId = Number(params.id);
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [calendarData, setCalendarData] = useState<CalendarDay[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadCalendar = async () => {
+  const loadCalendar = useCallback(async () => {
     setLoading(true);
     const monthStr = format(currentDate, "yyyy-MM");
     const result = await getMonthlyCalendarAction(roomId, monthStr);
@@ -39,11 +38,11 @@ export default function RoomCalendarPage() {
       setCalendarData(result.data);
     }
     setLoading(false);
-  };
+  }, [currentDate, roomId]);
 
   useEffect(() => {
     loadCalendar();
-  }, [currentDate, roomId]);
+  }, [loadCalendar]);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);

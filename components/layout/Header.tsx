@@ -11,6 +11,10 @@ import {
   LayoutDashboard,
   Hotel,
   Calendar,
+  Shield,
+  Users,
+  Tag,
+  FileText,
 } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { logoutAction } from "@/actions/auth";
@@ -116,6 +120,47 @@ export default function Header() {
                     </DropdownMenuItem>
                   </>
                 )}
+                {user.roles?.includes("ROLE_ADMIN") && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/admin/dashboard"
+                        className="flex items-center gap-2"
+                      >
+                        <Shield className="h-4 w-4" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/admin/users"
+                        className="flex items-center gap-2"
+                      >
+                        <Users className="h-4 w-4" />
+                        Manage Users
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/admin/discounts"
+                        className="flex items-center gap-2"
+                      >
+                        <Tag className="h-4 w-4" />
+                        Discount Codes
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link
+                        href="/admin/audit-logs"
+                        className="flex items-center gap-2"
+                      >
+                        <FileText className="h-4 w-4" />
+                        Audit Logs
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleLogout}
@@ -199,6 +244,38 @@ export default function Header() {
                         className="block px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-100"
                       >
                         My Hotels
+                      </Link>
+                    </>
+                  )}
+                  {user.roles?.includes("ROLE_ADMIN") && (
+                    <>
+                      <Link
+                        href="/admin/dashboard"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-100"
+                      >
+                        Admin Dashboard
+                      </Link>
+                      <Link
+                        href="/admin/users"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-100"
+                      >
+                        Manage Users
+                      </Link>
+                      <Link
+                        href="/admin/discounts"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-100"
+                      >
+                        Discount Codes
+                      </Link>
+                      <Link
+                        href="/admin/audit-logs"
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="block px-4 py-2 rounded-lg text-sm font-medium text-neutral-600 hover:bg-neutral-100"
+                      >
+                        Audit Logs
                       </Link>
                     </>
                   )}

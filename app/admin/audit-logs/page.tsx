@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getAuditLogsAction } from "@/actions/admin";
 import { AuditLog } from "@/types";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -13,23 +13,25 @@ export default function AuditLogsPage() {
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    loadLogs();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const loadLogs = async () => {
+  const loadLogs = useCallback(async () => {
     setLoading(true);
     const result = await getAuditLogsAction();
 
-    if (result.success && result.data) {
+    if (result && result.success && result.data) {
       setLogs(result.data.content || []);
     } else {
-      showToast(result.error || "Failed to load audit logs", "error");
+      showToast(
+        (result && result.error) || "Failed to load audit logs",
+        "error"
+      );
     }
 
     setLoading(false);
-  };
+  }, [showToast]);
+
+  useEffect(() => {
+    loadLogs();
+  }, [loadLogs]);
 
   return (
     <div className="container py-8">

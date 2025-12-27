@@ -278,6 +278,9 @@ Response: { token, type: "Bearer", email, roles }
 // Get all hotels
 GET /api/hotels
 
+// Get Single Hotel
+GET /api/hotels/{id}
+
 // Search by city
 GET /api/hotels/search?city=New York
 
@@ -299,6 +302,38 @@ Body: {
 POST /api/hotels
 Headers: { Authorization: "Bearer <token>" }
 Body: { name, city, address, googleMapUrl, amenities: [] }
+
+// Update Hotel (SELLER)
+PUT /api/hotels/{id}
+Headers: { Authorization: "Bearer <token>" }
+Body: {
+  name: "Updated Name",
+  city: "Updated City",
+  address: "Updated Address",
+  googleMapUrl: "https://maps.google.com/...",
+  amenities: ["Pool", "Gym"]
+}
+Note: Partial updates supported. Server only updates fields that are not null.
+
+// Delete Hotel (SELLER)
+DELETE /api/hotels/{id}
+Headers: { Authorization: "Bearer <token>" }
+Note: Implements "Safe Delete". Request will fail with 400/500 if the hotel has any existing bookings to protect data integrity.
+
+// Get My Hotels (SELLER)
+GET /api/hotels/seller/my-hotels
+Headers: { Authorization: "Bearer <token>" }
+
+// Get Seller Stats (SELLER)
+GET /api/hotels/seller/stats
+Headers: { Authorization: "Bearer <token>" }
+Response: {
+  totalHotels: 5,
+  totalBookings: 120,
+  totalRevenue: 50000.00,
+  averageRating: 4.8,
+  totalReviews: 45
+}
 
 // Add room (SELLER)
 POST /api/hotels/{hotelId}/rooms
@@ -743,6 +778,14 @@ try {
     } else if (status === 404) {
       // Not found
       showError("Resource not found");
+    } else if (status === 403) {
+      // Forbidden - Ownership check failed
+      showError("You do not have permission to perform this action.");
+    } else if (status === 500 && data.message.includes("existing bookings")) {
+      // Safe Delete Prevention
+      showError(
+        "Cannot delete hotel because it has active bookings. Please cancel them first."
+      );
     }
   } else {
     // Network error
@@ -851,7 +894,7 @@ try {
 
 ## Support
 
-**Backend API Documentation**: http://localhost:8080/swagger-ui/index.html#/
+**Backend API Documentation**: http://localhost:8080/swagger-ui.html
 
 **Questions?** Contact backend team for API clarifications.
 

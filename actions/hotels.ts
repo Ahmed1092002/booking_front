@@ -74,3 +74,9 @@ export async function addRoomAction(
 ): Promise<ActionResponse<Room>> {
   return api.post<Room>(`/api/hotels/${hotelId}/rooms`, data, true);
 }
+
+export async function getHotelRoomsAction(
+  hotelId: number
+): Promise<ActionResponse<Room[]>> {
+  return api.get<Room[]>(`/api/hotels/${hotelId}/rooms`, true);
+}

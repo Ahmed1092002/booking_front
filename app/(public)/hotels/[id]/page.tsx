@@ -1,12 +1,11 @@
 import { notFound } from "next/navigation";
-import { getHotelByIdAction } from "@/actions/hotels";
+import { getHotelByIdAction, getHotelRoomsAction } from "@/actions/hotels";
 import { getReviewsByHotelIdAction } from "@/actions/reviews";
 import HotelGallery from "@/components/hotel/HotelGallery";
 import AmenitiesList from "@/components/hotel/AmenitiesList";
 import RoomCard from "@/components/hotel/RoomCard";
 import ReviewCard from "@/components/review/ReviewCard";
 import StarRating from "@/components/review/StarRating";
-import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { MapPin, Star } from "lucide-react";
 
 interface HotelDetailsPageProps {
@@ -23,17 +22,26 @@ export default async function HotelDetailsPage({
     notFound();
   }
 
-  // Fetch hotel details
-  const hotelResult = await getHotelByIdAction(hotelId);
+  // Fetch hotel details, rooms, and reviews in parallel
+  const [hotelResult, roomsResult, reviewsResult] = await Promise.all([
+    getHotelByIdAction(hotelId),
+    getHotelRoomsAction(hotelId),
+    getReviewsByHotelIdAction(hotelId),
+  ]);
 
   if (!hotelResult.success || !hotelResult.data) {
     notFound();
   }
 
   const hotel = hotelResult.data;
+  // Use rooms from specific endpoint if available, otherwise fall back to hotel.rooms
+  const rooms =
+    roomsResult.success && roomsResult.data
+      ? roomsResult.data
+      : hotel.rooms || [];
 
-  // Fetch reviews
-  const reviewsResult = await getReviewsByHotelIdAction(hotelId);
+  hotel.rooms = rooms;
+
   const reviews =
     reviewsResult.success && reviewsResult.data ? reviewsResult.data : [];
 
@@ -117,7 +125,12 @@ export default async function HotelDetailsPage({
                 <h2 className="text-2xl font-bold mb-4">Available Rooms</h2>
                 <div className="space-y-4">
                   {hotel.rooms.map((room) => (
-                    <RoomCard key={room.id} room={room} />
+                    <RoomCard
+                      key={room.id}
+                      room={room}
+                      hotelId={hotel.id}
+                      hotelName={hotel.name}
+                    />
                   ))}
                 </div>
               </section>
