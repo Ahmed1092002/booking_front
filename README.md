@@ -75,6 +75,11 @@ A modern, full-featured hotel booking platform built with Next.js 16, React 19, 
 
 ## 🚀 Getting Started
 
+### Backend Reference
+
+- **Backend repository:** [Ahmed1092002/booking](https://github.com/Ahmed1092002/booking)
+- **Swagger UI:** [https://booking-kpm1.onrender.com/swagger-ui/index.html](https://booking-kpm1.onrender.com/swagger-ui/index.html)
+
 ### Prerequisites
 
 - Node.js 20+ or higher
